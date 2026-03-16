@@ -1,244 +1,939 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seguimiento Mesa Comunitaria</title>
-<style>
-body{font-family:Arial;background:#f4f6f9;margin:0;padding:20px}
-h1{margin-bottom:5px}
-.container{max-width:1200px;margin:auto}
-.card{background:white;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-.stat{padding:15px;border-radius:8px;text-align:center;font-weight:bold}
-.atrasado{background:#ffe3e3;color:#b91c1c}
-.cumplido{background:#dcfce7;color:#166534}
-.curso{background:#fef9c3;color:#854d0e}
-form{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
-input,select,textarea{padding:8px;border:1px solid #ccc;border-radius:6px;font-size:14px}
-textarea{min-height:70px}
-.col-12{grid-column:span 12}
-.col-6{grid-column:span 6}
-.col-4{grid-column:span 4}
-.col-3{grid-column:span 3}
-button{padding:10px;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
-.btn{background:#2563eb;color:white}
-.btn-sec{background:#e5e7eb}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border-bottom:1px solid #ddd;padding:8px;font-size:14px}
-th{background:#f1f5f9;text-align:left}
-.badge{padding:4px 8px;border-radius:12px;font-size:12px;font-weight:bold}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seguimiento de Compromisos - Mesa Comunitaria</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3ee;
+      --primary: #1d4ed8;
+      --primary-soft: #dbeafe;
+      --success: #15803d;
+      --success-soft: #dcfce7;
+      --warning: #b45309;
+      --warning-soft: #fef3c7;
+      --danger: #b91c1c;
+      --danger-soft: #fee2e2;
+      --gray-soft: #f3f4f6;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .title-wrap h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .title-wrap p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      padding: 18px 20px 0;
+    }
+
+    .card-header h2,
+    .card-header h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .card-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      padding: 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      min-height: 120px;
+    }
+
+    .stat h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .stat .number {
+      font-size: 34px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stat small {
+      color: var(--muted);
+      line-height: 1.4;
+      display: block;
+    }
+
+    .stat.atrasado {
+      background: var(--danger-soft);
+      border-color: #fecaca;
+    }
+
+    .stat.cumplido {
+      background: var(--success-soft);
+      border-color: #bbf7d0;
+    }
+
+    .stat.encurso {
+      background: var(--warning-soft);
+      border-color: #fde68a;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 12px 12px;
+      border: 1px solid #cfd8e3;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--gray-soft);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+      background: #fff;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-size: 13px;
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      z-index: 1;
+    }
+
+    tbody td {
+      padding: 12px;
+      border-bottom: 1px solid #edf2f7;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    tbody tr:hover {
+      background: #fafcff;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-pendiente { background: #e5e7eb; color: #374151; }
+    .badge-en-curso { background: #fef3c7; color: #92400e; }
+    .badge-cumplido { background: #dcfce7; color: #166534; }
+    .badge-atrasado { background: #fee2e2; color: #991b1b; }
+
+    .mini-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 7px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .mini-btn:hover { background: #f8fafc; }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .toolbar .summary {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    a.file-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    a.file-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1100px) {
+      .layout,
+      .grid-3,
+      .filters,
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
+  <div class="app">
+    <div class="header">
+      <div class="title-wrap">
+        <h1>Seguimiento de Compromisos de Mesa Comunitaria</h1>
+        <p>Aplicación interna para registrar acuerdos, responsables, plazos, estados y evidencias de cumplimiento. Funciona en navegador y guarda la información en el almacenamiento local del equipo.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-success" id="btnExportar">Exportar a Excel</button>
+        <button class="btn btn-secondary" id="btnCargaDemo">Cargar ejemplo</button>
+        <button class="btn btn-danger" id="btnLimpiarTodo">Limpiar todo</button>
+      </div>
+    </div>
 
-<h1>Seguimiento de Compromisos - Mesa Comunitaria</h1>
-<p>Sistema interno de monitoreo de acuerdos comunitarios</p>
+    <div class="grid-3">
+      <div class="stat atrasado">
+        <h3>Acuerdos atrasados</h3>
+        <div class="number" id="statAtrasados">0</div>
+        <small>Compromisos vencidos que aún no están marcados como cumplidos.</small>
+      </div>
+      <div class="stat cumplido">
+        <h3>Acuerdos cumplidos</h3>
+        <div class="number" id="statCumplidos">0</div>
+        <small>Compromisos finalizados y cerrados con evidencia o registro de cumplimiento.</small>
+      </div>
+      <div class="stat encurso">
+        <h3>Acuerdos en curso</h3>
+        <div class="number" id="statEnCurso">0</div>
+        <small>Compromisos activos, pendientes o en ejecución dentro de plazo.</small>
+      </div>
+    </div>
 
-<div class="card">
-<h3>Tablero</h3>
-<div class="grid">
-<div class="stat atrasado">Atrasados<br><span id="tAtrasado">0</span></div>
-<div class="stat cumplido">Cumplidos<br><span id="tCumplido">0</span></div>
-<div class="stat curso">En Curso<br><span id="tCurso">0</span></div>
-</div>
-</div>
+    <div class="layout">
+      <section class="card">
+        <div class="card-header">
+          <h2 id="formTitle">Registrar compromiso</h2>
+          <p>Complete los campos para crear o actualizar un acuerdo de Mesa Comunitaria.</p>
+        </div>
+        <div class="card-body">
+          <form id="compromisoForm">
+            <input type="hidden" id="registroId" />
 
-<div class="card">
-<h3>Registrar Acuerdo</h3>
-<form id="form">
-<input class="col-3" type="date" id="fecha" required>
-<select class="col-3" id="sector">
-<option value="">Sector</option>
-<option>Norte</option>
-<option>Sur</option>
-<option>Oriente</option>
-<option>Poniente</option>
-<option>Centro</option>
-</select>
-<input class="col-3" id="responsable" placeholder="Responsable">
-<input class="col-3" type="date" id="plazo">
-<textarea class="col-12" id="acuerdo" placeholder="Descripción del acuerdo"></textarea>
-<select class="col-3" id="estado">
-<option>En curso</option>
-<option>Cumplido</option>
-<option>Pendiente</option>
-</select>
-<input class="col-4" id="observaciones" placeholder="Observaciones">
-<input class="col-5" id="evidencia" placeholder="Evidencia o enlace">
-<button class="btn col-12">Guardar</button>
-</form>
-</div>
+            <div>
+              <label for="fechaSesion">Fecha de sesión</label>
+              <input type="date" id="fechaSesion" required />
+            </div>
 
-<div class="card">
-<h3>Listado</h3>
-<button class="btn-sec" onclick="exportarExcel()">Exportar Excel</button>
-<table>
-<thead>
-<tr>
-<th>Fecha</th>
-<th>Sector</th>
-<th>Acuerdo</th>
-<th>Responsable</th>
-<th>Plazo</th>
-<th>Estado</th>
-<th>Observaciones</th>
-<th>Evidencia</th>
-</tr>
-</thead>
-<tbody id="tabla"></tbody>
-</table>
-</div>
+            <div>
+              <label for="sector">Sector</label>
+              <input type="text" id="sector" placeholder="Ej.: El Abrazo, Rinconada, Lo Errázuriz" required />
+            </div>
 
-</div>
+            <div>
+              <label for="acuerdo">Acuerdo</label>
+              <textarea id="acuerdo" placeholder="Describa el acuerdo o compromiso adoptado" required></textarea>
+            </div>
 
-<script>
+            <div class="field-grid">
+              <div>
+                <label for="responsable">Responsable</label>
+                <input type="text" id="responsable" placeholder="Nombre de persona, programa o unidad" required />
+              </div>
+              <div>
+                <label for="plazo">Plazo</label>
+                <input type="date" id="plazo" required />
+              </div>
+            </div>
 
-/* -----------------------------
-CONFIGURACIÓN API VERCEL
------------------------------ */
+            <div class="field-grid">
+              <div>
+                <label for="estado">Estado</label>
+                <select id="estado" required>
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="En curso">En curso</option>
+                  <option value="Cumplido">Cumplido</option>
+                </select>
+              </div>
+              <div>
+                <label for="observaciones">Observaciones</label>
+                <input type="text" id="observaciones" placeholder="Comentario breve o hito de seguimiento" />
+              </div>
+            </div>
 
-const API_URL = "/api/compromisos";
+            <div>
+              <label for="evidencia">Evidencia de cumplimiento</label>
+              <input type="file" id="evidencia" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx" />
+              <div class="hint">Puede adjuntar un archivo. La evidencia se guarda en el navegador del equipo que registra la información. Para uso compartido real se recomienda conectar esta interfaz a una base de datos o almacenamiento externo.</div>
+            </div>
 
-/* -----------------------------
-CARGAR DATOS
------------------------------ */
+            <div class="actions">
+              <button type="submit" class="btn btn-primary" id="btnGuardar">Guardar compromiso</button>
+              <button type="button" class="btn btn-secondary" id="btnCancelarEdicion">Cancelar edición</button>
+            </div>
+          </form>
+        </div>
+      </section>
 
-async function cargarDatos(){
-const res = await fetch(API_URL);
-const data = await res.json();
-render(data);
-}
+      <section class="card">
+        <div class="card-header">
+          <h2>Tablero y listado de seguimiento</h2>
+          <p>Filtre por sector, estado o texto libre. El sistema clasifica automáticamente los compromisos atrasados según la fecha de plazo.</p>
+        </div>
+        <div class="card-body">
+          <div class="filters">
+            <div>
+              <label for="filtroTexto">Buscar</label>
+              <input type="text" id="filtroTexto" placeholder="Buscar por acuerdo, responsable u observación" />
+            </div>
+            <div>
+              <label for="filtroSector">Sector</label>
+              <select id="filtroSector">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div>
+              <label for="filtroEstado">Estado</label>
+              <select id="filtroEstado">
+                <option value="">Todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="En curso">En curso</option>
+                <option value="Cumplido">Cumplido</option>
+                <option value="Atrasado">Atrasado</option>
+              </select>
+            </div>
+            <div>
+              <label for="filtroFecha">Sesión desde</label>
+              <input type="date" id="filtroFecha" />
+            </div>
+          </div>
 
-/* -----------------------------
-GUARDAR
------------------------------ */
+          <div class="toolbar">
+            <div class="summary" id="resumenTabla">0 compromisos registrados</div>
+            <div class="actions">
+              <button class="btn btn-secondary" id="btnLimpiarFiltros">Limpiar filtros</button>
+            </div>
+          </div>
 
-document.getElementById("form").addEventListener("submit", async e=>{
-e.preventDefault();
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha sesión</th>
+                  <th>Sector</th>
+                  <th>Acuerdo</th>
+                  <th>Responsable</th>
+                  <th>Plazo</th>
+                  <th>Estado</th>
+                  <th>Observaciones</th>
+                  <th>Evidencia</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tablaCompromisos"></tbody>
+            </table>
+          </div>
 
-const registro={
-fecha:fecha.value,
-sector:sector.value,
-acuerdo:acuerdo.value,
-responsable:responsable.value,
-plazo:plazo.value,
-estado:estado.value,
-observaciones:observaciones.value,
-evidencia:evidencia.value
-}
+          <div class="footer-note">
+            Sugerencia para despliegue en Vercel: guarde este archivo como <strong>index.html</strong> dentro de una carpeta de proyecto. Luego puede arrastrar la carpeta al panel de Vercel o conectarla a un repositorio. Al ser una aplicación estática, no requiere backend para funcionar, aunque la persistencia será local por navegador si no se integra una base de datos.
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
 
-await fetch(API_URL,{ 
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(registro)
-});
+  <script>
+    const STORAGE_KEY = 'mesa_comunitaria_compromisos_v1';
 
-form.reset();
-cargarDatos();
+    const form = document.getElementById('compromisoForm');
+    const registroId = document.getElementById('registroId');
+    const fechaSesion = document.getElementById('fechaSesion');
+    const sector = document.getElementById('sector');
+    const acuerdo = document.getElementById('acuerdo');
+    const responsable = document.getElementById('responsable');
+    const plazo = document.getElementById('plazo');
+    const estado = document.getElementById('estado');
+    const observaciones = document.getElementById('observaciones');
+    const evidencia = document.getElementById('evidencia');
 
-})
+    const filtroTexto = document.getElementById('filtroTexto');
+    const filtroSector = document.getElementById('filtroSector');
+    const filtroEstado = document.getElementById('filtroEstado');
+    const filtroFecha = document.getElementById('filtroFecha');
 
-/* -----------------------------
-RENDER TABLA
------------------------------ */
+    const tablaCompromisos = document.getElementById('tablaCompromisos');
+    const resumenTabla = document.getElementById('resumenTabla');
+    const statAtrasados = document.getElementById('statAtrasados');
+    const statCumplidos = document.getElementById('statCumplidos');
+    const statEnCurso = document.getElementById('statEnCurso');
+    const formTitle = document.getElementById('formTitle');
+    const btnGuardar = document.getElementById('btnGuardar');
 
-function render(data){
+    let compromisos = loadData();
 
-let atrasado=0
-let cumplido=0
-let curso=0
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+        return [];
+      }
+    }
 
-let html=""
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(compromisos));
+    }
 
-const hoy=new Date()
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const [year, month, day] = dateStr.split('-');
+      if (!year || !month || !day) return dateStr;
+      return `${day}-${month}-${year}`;
+    }
 
-for(let r of data){
+    function todayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
 
-let estado=r.estado
+    function getEffectiveStatus(item) {
+      const status = item.estado;
+      if (status === 'Cumplido') return 'Cumplido';
+      if (item.plazo && item.plazo < todayISO()) return 'Atrasado';
+      if (status === 'En curso') return 'En curso';
+      return 'Pendiente';
+    }
 
-if(r.estado!="Cumplido" && new Date(r.plazo)<hoy)estado="Atrasado"
+    function statusBadgeClass(status) {
+      const map = {
+        'Pendiente': 'badge badge-pendiente',
+        'En curso': 'badge badge-en-curso',
+        'Cumplido': 'badge badge-cumplido',
+        'Atrasado': 'badge badge-atrasado'
+      };
+      return map[status] || 'badge badge-pendiente';
+    }
 
-if(estado=="Atrasado")atrasado++
-else if(estado=="Cumplido")cumplido++
-else curso++
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) return resolve(null);
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
 
-html+=`<tr>
-<td>${r.fecha}</td>
-<td>${r.sector}</td>
-<td>${r.acuerdo}</td>
-<td>${r.responsable}</td>
-<td>${r.plazo}</td>
-<td>${estado}</td>
-<td>${r.observaciones||""}</td>
-<td>${r.evidencia||""}</td>
-</tr>`
-}
+    async function handleSubmit(event) {
+      event.preventDefault();
 
-tabla.innerHTML=html
+      const file = evidencia.files[0] || null;
+      let evidenciaData = null;
+      let evidenciaNombre = '';
+      let evidenciaTipo = '';
 
-tAtrasado.textContent=atrasado
+      const existing = registroId.value ? compromisos.find(item => item.id === registroId.value) : null;
 
-tCumplido.textContent=cumplido
+      if (file) {
+        evidenciaData = await fileToBase64(file);
+        evidenciaNombre = file.name;
+        evidenciaTipo = file.type || '';
+      } else if (existing && existing.evidenciaData) {
+        evidenciaData = existing.evidenciaData;
+        evidenciaNombre = existing.evidenciaNombre;
+        evidenciaTipo = existing.evidenciaTipo;
+      }
 
-tCurso.textContent=curso
+      const payload = {
+        id: registroId.value || crypto.randomUUID(),
+        fechaSesion: fechaSesion.value,
+        sector: sector.value.trim(),
+        acuerdo: acuerdo.value.trim(),
+        responsable: responsable.value.trim(),
+        plazo: plazo.value,
+        estado: estado.value,
+        observaciones: observaciones.value.trim(),
+        evidenciaData,
+        evidenciaNombre,
+        evidenciaTipo,
+        updatedAt: new Date().toISOString()
+      };
 
-}
+      if (registroId.value) {
+        compromisos = compromisos.map(item => item.id === registroId.value ? payload : item);
+      } else {
+        compromisos.push(payload);
+      }
 
-/* -----------------------------
-EXPORTAR EXCEL
------------------------------ */
+      saveData();
+      resetForm();
+      renderAll();
+    }
 
-function exportarExcel(){
-let table=document.querySelector("table").outerHTML
-let blob=new Blob([table],{type:"application/vnd.ms-excel"})
-let url=URL.createObjectURL(blob)
-let a=document.createElement("a")
-a.href=url
-a.download="acuerdos_mesa_comunitaria.xls"
-a.click()
-}
+    function resetForm() {
+      form.reset();
+      registroId.value = '';
+      estado.value = 'Pendiente';
+      formTitle.textContent = 'Registrar compromiso';
+      btnGuardar.textContent = 'Guardar compromiso';
+      evidencia.value = '';
+    }
 
-cargarDatos()
+    function editItem(id) {
+      const item = compromisos.find(row => row.id === id);
+      if (!item) return;
 
-</script>
+      registroId.value = item.id;
+      fechaSesion.value = item.fechaSesion;
+      sector.value = item.sector;
+      acuerdo.value = item.acuerdo;
+      responsable.value = item.responsable;
+      plazo.value = item.plazo;
+      estado.value = item.estado;
+      observaciones.value = item.observaciones || '';
+      formTitle.textContent = 'Editar compromiso';
+      btnGuardar.textContent = 'Actualizar compromiso';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteItem(id) {
+      const confirmed = confirm('¿Desea eliminar este compromiso? Esta acción no se puede deshacer.');
+      if (!confirmed) return;
+      compromisos = compromisos.filter(item => item.id !== id);
+      saveData();
+      renderAll();
+    }
+
+    function getFilteredData() {
+      const text = filtroTexto.value.trim().toLowerCase();
+      const sectorVal = filtroSector.value;
+      const estadoVal = filtroEstado.value;
+      const fechaVal = filtroFecha.value;
+
+      return compromisos
+        .filter(item => {
+          const effectiveStatus = getEffectiveStatus(item);
+          const matchesText = !text || [item.acuerdo, item.responsable, item.observaciones, item.sector]
+            .join(' ')
+            .toLowerCase()
+            .includes(text);
+          const matchesSector = !sectorVal || item.sector === sectorVal;
+          const matchesEstado = !estadoVal || effectiveStatus === estadoVal || item.estado === estadoVal;
+          const matchesFecha = !fechaVal || item.fechaSesion >= fechaVal;
+          return matchesText && matchesSector && matchesEstado && matchesFecha;
+        })
+        .sort((a, b) => {
+          if (a.plazo === b.plazo) return a.fechaSesion.localeCompare(b.fechaSesion);
+          return a.plazo.localeCompare(b.plazo);
+        });
+    }
+
+    function renderTable() {
+      const data = getFilteredData();
+      resumenTabla.textContent = `${data.length} compromiso(s) visible(s) de ${compromisos.length} registrado(s)`;
+
+      if (!data.length) {
+        tablaCompromisos.innerHTML = `<tr><td colspan="9" class="empty">No hay compromisos para mostrar con los filtros actuales.</td></tr>`;
+        return;
+      }
+
+      tablaCompromisos.innerHTML = data.map(item => {
+        const effectiveStatus = getEffectiveStatus(item);
+        const evidenciaHtml = item.evidenciaData
+          ? `<a class="file-link" href="${item.evidenciaData}" download="${item.evidenciaNombre || 'evidencia'}">${item.evidenciaNombre || 'Descargar archivo'}</a>`
+          : '<span style="color:#6b7280;">Sin archivo</span>';
+
+        return `
+          <tr>
+            <td>${formatDate(item.fechaSesion)}</td>
+            <td><span class="tag">${escapeHtml(item.sector)}</span></td>
+            <td>${escapeHtml(item.acuerdo)}</td>
+            <td>${escapeHtml(item.responsable)}</td>
+            <td>${formatDate(item.plazo)}</td>
+            <td><span class="${statusBadgeClass(effectiveStatus)}">${effectiveStatus}</span></td>
+            <td>${escapeHtml(item.observaciones || '-')}</td>
+            <td>${evidenciaHtml}</td>
+            <td>
+              <div class="mini-actions">
+                <button class="mini-btn" onclick="editItem('${item.id}')">Editar</button>
+                <button class="mini-btn" onclick="deleteItem('${item.id}')">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderStats() {
+      const atrasados = compromisos.filter(item => getEffectiveStatus(item) === 'Atrasado').length;
+      const cumplidos = compromisos.filter(item => getEffectiveStatus(item) === 'Cumplido').length;
+      const enCurso = compromisos.filter(item => ['Pendiente', 'En curso'].includes(getEffectiveStatus(item))).length;
+
+      statAtrasados.textContent = atrasados;
+      statCumplidos.textContent = cumplidos;
+      statEnCurso.textContent = enCurso;
+    }
+
+    function renderSectorFilter() {
+      const current = filtroSector.value;
+      const sectors = [...new Set(compromisos.map(item => item.sector).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+      filtroSector.innerHTML = `<option value="">Todos</option>` + sectors.map(sec => `<option value="${escapeAttribute(sec)}">${escapeHtml(sec)}</option>`).join('');
+      filtroSector.value = sectors.includes(current) ? current : '';
+    }
+
+    function renderAll() {
+      renderSectorFilter();
+      renderStats();
+      renderTable();
+    }
+
+    function clearFilters() {
+      filtroTexto.value = '';
+      filtroSector.value = '';
+      filtroEstado.value = '';
+      filtroFecha.value = '';
+      renderTable();
+    }
+
+    function exportToExcel() {
+      const data = getFilteredData();
+      if (!data.length) {
+        alert('No hay registros para exportar con los filtros actuales.');
+        return;
+      }
+
+      let html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="UTF-8">
+          <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Compromisos</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+        </head>
+        <body>
+          <table border="1">
+            <tr>
+              <th>Fecha sesión</th>
+              <th>Sector</th>
+              <th>Acuerdo</th>
+              <th>Responsable</th>
+              <th>Plazo</th>
+              <th>Estado</th>
+              <th>Observaciones</th>
+              <th>Evidencia</th>
+            </tr>
+            ${data.map(item => `
+              <tr>
+                <td>${formatDate(item.fechaSesion)}</td>
+                <td>${escapeHtml(item.sector)}</td>
+                <td>${escapeHtml(item.acuerdo)}</td>
+                <td>${escapeHtml(item.responsable)}</td>
+                <td>${formatDate(item.plazo)}</td>
+                <td>${getEffectiveStatus(item)}</td>
+                <td>${escapeHtml(item.observaciones || '')}</td>
+                <td>${escapeHtml(item.evidenciaNombre || '')}</td>
+              </tr>
+            `).join('')}
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `seguimiento_mesa_comunitaria_${todayISO()}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function loadDemoData() {
+      const confirmed = confirm('Se cargarán registros de ejemplo. Los registros actuales se mantendrán.');
+      if (!confirmed) return;
+
+      const demo = [
+        {
+          id: crypto.randomUUID(),
+          fechaSesion: '2026-03-02',
+          sector: 'Lo Errázuriz',
+          acuerdo: 'Coordinar operativo de luminarias en tres pasajes priorizados por la comunidad.',
+          responsable: 'Dirección de Operaciones',
+          plazo: '2026-03-10',
+          estado: 'En curso',
+          observaciones: 'Se levantó catastro inicial y se solicitó cuadrilla.',
+          evidenciaData: null,
+          evidenciaNombre: '',
+          evidenciaTipo: '',
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: crypto.randomUUID(),
+          fechaSesion: '2026-02-20',
+          sector: 'Rinconada',
+          acuerdo: 'Enviar minuta de oferta programática para difusión en organizaciones del sector.',
+          responsable: 'Equipo Territorial',
+          plazo: '2026-02-27',
+          estado: 'Cumplido',
+          observaciones: 'Minuta enviada por correo y presentada en reunión de seguimiento.',
+          evidenciaData: null,
+          evidenciaNombre: '',
+          evidenciaTipo: '',
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: crypto.randomUUID(),
+          fechaSesion: '2026-02-25',
+          sector: 'El Abrazo',
+          acuerdo: 'Gestionar reunión con Seguridad Pública por puntos críticos identificados por vecinos.',
+          responsable: 'Programa Comunitario',
+          plazo: '2026-03-05',
+          estado: 'Pendiente',
+          observaciones: 'Pendiente confirmación de fecha por parte de contraparte municipal.',
+          evidenciaData: null,
+          evidenciaNombre: '',
+          evidenciaTipo: '',
+          updatedAt: new Date().toISOString()
+        }
+      ];
+
+      compromisos = compromisos.concat(demo);
+      saveData();
+      renderAll();
+    }
+
+    function clearAllData() {
+      const confirmed = confirm('Se eliminarán todos los registros guardados en este navegador.');
+      if (!confirmed) return;
+      compromisos = [];
+      saveData();
+      resetForm();
+      clearFilters();
+      renderAll();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeAttribute(value) {
+      return String(value ?? '').replace(/"/g, '&quot;');
+    }
+
+    form.addEventListener('submit', handleSubmit);
+    document.getElementById('btnCancelarEdicion').addEventListener('click', resetForm);
+    document.getElementById('btnLimpiarFiltros').addEventListener('click', clearFilters);
+    document.getElementById('btnExportar').addEventListener('click', exportToExcel);
+    document.getElementById('btnCargaDemo').addEventListener('click', loadDemoData);
+    document.getElementById('btnLimpiarTodo').addEventListener('click', clearAllData);
+
+    [filtroTexto, filtroSector, filtroEstado, filtroFecha].forEach(el => {
+      el.addEventListener('input', renderTable);
+      el.addEventListener('change', renderTable);
+    });
+
+    renderAll();
+
+    window.editItem = editItem;
+    window.deleteItem = deleteItem;
+  </script>
 </body>
 </html>
 
-<!--
-====================================================
-API SERVERLESS PARA VERCEL
-crear archivo /api/compromisos.js
-====================================================
-
-import { kv } from '@vercel/kv'
-
-export default async function handler(req,res){
-
-if(req.method==='GET'){
-const data= await kv.get('acuerdos') || []
-return res.json(data)
-}
-
-if(req.method==='POST'){
-const body=req.body
-
-let data= await kv.get('acuerdos') || []
-
-data.push(body)
-
-await kv.set('acuerdos',data)
-
-return res.json({ok:true})
-}
-
-}
-
-====================================================
-DEPENDENCIA
-npm install @vercel/kv
-
-Vercel Dashboard → Storage → KV Database
-====================================================
--->
