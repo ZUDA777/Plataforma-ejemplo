@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seguimiento Mesa Comunitaria</title>
+<style>
+body{font-family:Arial;background:#f4f6f9;margin:0;padding:20px}
+h1{margin-bottom:5px}
+.container{max-width:1200px;margin:auto}
+.card{background:white;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.stat{padding:15px;border-radius:8px;text-align:center;font-weight:bold}
+.atrasado{background:#ffe3e3;color:#b91c1c}
+.cumplido{background:#dcfce7;color:#166534}
+.curso{background:#fef9c3;color:#854d0e}
+form{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+input,select,textarea{padding:8px;border:1px solid #ccc;border-radius:6px;font-size:14px}
+textarea{min-height:70px}
+.col-12{grid-column:span 12}
+.col-6{grid-column:span 6}
+.col-4{grid-column:span 4}
+.col-3{grid-column:span 3}
+button{padding:10px;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
+.btn{background:#2563eb;color:white}
+.btn-sec{background:#e5e7eb}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border-bottom:1px solid #ddd;padding:8px;font-size:14px}
+th{background:#f1f5f9;text-align:left}
+.badge{padding:4px 8px;border-radius:12px;font-size:12px;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Seguimiento de Compromisos - Mesa Comunitaria</h1>
+<p>Sistema interno de monitoreo de acuerdos comunitarios</p>
+
+<div class="card">
+<h3>Tablero</h3>
+<div class="grid">
+<div class="stat atrasado">Atrasados<br><span id="tAtrasado">0</span></div>
+<div class="stat cumplido">Cumplidos<br><span id="tCumplido">0</span></div>
+<div class="stat curso">En Curso<br><span id="tCurso">0</span></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Registrar Acuerdo</h3>
+<form id="form">
+<input class="col-3" type="date" id="fecha" required>
+<select class="col-3" id="sector">
+<option value="">Sector</option>
+<option>Norte</option>
+<option>Sur</option>
+<option>Oriente</option>
+<option>Poniente</option>
+<option>Centro</option>
+</select>
+<input class="col-3" id="responsable" placeholder="Responsable">
+<input class="col-3" type="date" id="plazo">
+<textarea class="col-12" id="acuerdo" placeholder="Descripción del acuerdo"></textarea>
+<select class="col-3" id="estado">
+<option>En curso</option>
+<option>Cumplido</option>
+<option>Pendiente</option>
+</select>
+<input class="col-4" id="observaciones" placeholder="Observaciones">
+<input class="col-5" id="evidencia" placeholder="Evidencia o enlace">
+<button class="btn col-12">Guardar</button>
+</form>
+</div>
+
+<div class="card">
+<h3>Listado</h3>
+<button class="btn-sec" onclick="exportarExcel()">Exportar Excel</button>
+<table>
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Sector</th>
+<th>Acuerdo</th>
+<th>Responsable</th>
+<th>Plazo</th>
+<th>Estado</th>
+<th>Observaciones</th>
+<th>Evidencia</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+
+/* -----------------------------
+CONFIGURACIÓN API VERCEL
+----------------------------- */
+
+const API_URL = "/api/compromisos";
+
+/* -----------------------------
+CARGAR DATOS
+----------------------------- */
+
+async function cargarDatos(){
+const res = await fetch(API_URL);
+const data = await res.json();
+render(data);
+}
+
+/* -----------------------------
+GUARDAR
+----------------------------- */
+
+document.getElementById("form").addEventListener("submit", async e=>{
+e.preventDefault();
+
+const registro={
+fecha:fecha.value,
+sector:sector.value,
+acuerdo:acuerdo.value,
+responsable:responsable.value,
+plazo:plazo.value,
+estado:estado.value,
+observaciones:observaciones.value,
+evidencia:evidencia.value
+}
+
+await fetch(API_URL,{ 
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(registro)
+});
+
+form.reset();
+cargarDatos();
+
+})
+
+/* -----------------------------
+RENDER TABLA
+----------------------------- */
+
+function render(data){
+
+let atrasado=0
+let cumplido=0
+let curso=0
+
+let html=""
+
+const hoy=new Date()
+
+for(let r of data){
+
+let estado=r.estado
+
+if(r.estado!="Cumplido" && new Date(r.plazo)<hoy)estado="Atrasado"
+
+if(estado=="Atrasado")atrasado++
+else if(estado=="Cumplido")cumplido++
+else curso++
+
+html+=`<tr>
+<td>${r.fecha}</td>
+<td>${r.sector}</td>
+<td>${r.acuerdo}</td>
+<td>${r.responsable}</td>
+<td>${r.plazo}</td>
+<td>${estado}</td>
+<td>${r.observaciones||""}</td>
+<td>${r.evidencia||""}</td>
+</tr>`
+}
+
+tabla.innerHTML=html
+
+tAtrasado.textContent=atrasado
+
+tCumplido.textContent=cumplido
+
+tCurso.textContent=curso
+
+}
+
+/* -----------------------------
+EXPORTAR EXCEL
+----------------------------- */
+
+function exportarExcel(){
+let table=document.querySelector("table").outerHTML
+let blob=new Blob([table],{type:"application/vnd.ms-excel"})
+let url=URL.createObjectURL(blob)
+let a=document.createElement("a")
+a.href=url
+a.download="acuerdos_mesa_comunitaria.xls"
+a.click()
+}
+
+cargarDatos()
+
+</script>
+</body>
+</html>
+
+<!--
+====================================================
+API SERVERLESS PARA VERCEL
+crear archivo /api/compromisos.js
+====================================================
+
+import { kv } from '@vercel/kv'
+
+export default async function handler(req,res){
+
+if(req.method==='GET'){
+const data= await kv.get('acuerdos') || []
+return res.json(data)
+}
+
+if(req.method==='POST'){
+const body=req.body
+
+let data= await kv.get('acuerdos') || []
+
+data.push(body)
+
+await kv.set('acuerdos',data)
+
+return res.json({ok:true})
+}
+
+}
+
+====================================================
+DEPENDENCIA
+npm install @vercel/kv
+
+Vercel Dashboard → Storage → KV Database
+====================================================
+-->
